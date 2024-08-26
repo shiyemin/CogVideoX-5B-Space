@@ -21,7 +21,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 hf_hub_download(repo_id="ai-forever/Real-ESRGAN", filename="RealESRGAN_x4.pth", local_dir="model_real_esran")
 snapshot_download(repo_id="AlexWortega/RIFE", local_dir="model_rife")
 
-pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-5b", torch_dtype=torch.bfloat16).to(device)
+pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-5b", torch_dtype=torch.bfloat16)
 pipe.scheduler = CogVideoXDDIMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
 
 os.makedirs("./output", exist_ok=True)
@@ -110,7 +110,7 @@ def infer(
         num_frames=49,
         output_type="pt",
         guidance_scale=guidance_scale,
-        generator=torch.Generator(device=device).manual_seed(seed),
+        generator=torch.Generator(device="cpu").manual_seed(seed),
     ).frames
 
     return (video_pt, seed)
