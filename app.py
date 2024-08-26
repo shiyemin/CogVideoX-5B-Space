@@ -267,7 +267,7 @@ with gr.Blocks() as demo:
                  seed_value,
                  scale_status,
                  rife_status, 
-                 #progress=gr.Progress(track_tqdm=True)
+                 progress=gr.Progress(track_tqdm=True)
                 ):
 
         latents, seed = infer(
