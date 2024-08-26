@@ -102,7 +102,7 @@ def infer(
         num_inference_steps: int,
         guidance_scale: float,
         seed: int = -1,
-        progress=gr.Progress(track_tqdm=True),
+        #progress=gr.Progress(track_tqdm=True),
 ):
     if seed == -1:
         seed = random.randint(0, 2 ** 8 - 1)
@@ -263,14 +263,19 @@ with gr.Blocks() as demo:
         """)
 
 
-    def generate(prompt, seed_value, scale_status, rife_status, progress=gr.Progress(track_tqdm=True)):
+    def generate(prompt,
+                 seed_value,
+                 scale_status,
+                 rife_status, 
+                 #progress=gr.Progress(track_tqdm=True)
+                ):
 
         latents, seed = infer(
             prompt,
             num_inference_steps=50,  # NOT Changed
             guidance_scale=7,  # NOT Changed
             seed=seed_value,
-            progress=progress,
+            #progress=progress,
         )
         if scale_status:
             latents = utils.upscale_batch_and_concatenate(upscale_model, latents, device)
