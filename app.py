@@ -204,13 +204,13 @@ with gr.Blocks() as demo:
             🎥 Video Gallery
         </div>
         <tr>
-            <td style="width: 25%; vertical-align: top; font-size: 0.8em;">
+            <td style="width: 25%; vertical-align: top; font-size: 0.9em;">
                 <p>A garden comes to life as a kaleidoscope of butterflies flutters amidst the blossoms, their delicate wings casting shadows on the petals below. In the background, a grand fountain cascades water with a gentle splendor, its rhythmic sound providing a soothing backdrop. Beneath the cool shade of a mature tree, a solitary wooden chair invites solitude and reflection, its smooth surface worn by the touch of countless visitors seeking a moment of tranquility in nature's embrace.</p>
             </td>
             <td style="width: 25%; vertical-align: top;">
                 <video src="https://github.com/user-attachments/assets/cf5953ea-96d3-48fd-9907-c4708752c714" width="100%" controls autoplay loop></video>
             </td>
-            <td style="width: 25%; vertical-align: top; font-size: 0.8em;">
+            <td style="width: 25%; vertical-align: top; font-size: 0.9em;">
                 <p>A small boy, head bowed and determination etched on his face, sprints through the torrential downpour as lightning crackles and thunder rumbles in the distance. The relentless rain pounds the ground, creating a chaotic dance of water droplets that mirror the dramatic sky's anger. In the far background, the silhouette of a cozy home beckons, a faint beacon of safety and warmth amidst the fierce weather. The scene is one of perseverance and the unyielding spirit of a child braving the elements.</p>
             </td>
             <td style="width: 25%; vertical-align: top;">
@@ -218,13 +218,13 @@ with gr.Blocks() as demo:
             </td>
         </tr>
         <tr>
-            <td style="width: 25%; vertical-align: top; font-size: 0.8em;">
+            <td style="width: 25%; vertical-align: top; font-size: 0.9em;">
                 <p>A suited astronaut, with the red dust of Mars clinging to their boots, reaches out to shake hands with an alien being, their skin a shimmering blue, under the pink-tinged sky of the fourth planet. In the background, a sleek silver rocket, a beacon of human ingenuity, stands tall, its engines powered down, as the two representatives of different worlds exchange a historic greeting amidst the desolate beauty of the Martian landscape.</p>
             </td>
             <td style="width: 25%; vertical-align: top;">
                 <video src="https://github.com/user-attachments/assets/c182f606-8f8c-421d-b414-8487070fcfcb" width="100%" controls autoplay loop></video>
             </td>
-            <td style="width: 25%; vertical-align: top; font-size: 0.8em;">
+            <td style="width: 25%; vertical-align: top; font-size: 0.9em;">
                 <p>An elderly gentleman, with a serene expression, sits at the water's edge, a steaming cup of tea by his side. He is engrossed in his artwork, brush in hand, as he renders an oil painting on a canvas that's propped up against a small, weathered table. The sea breeze whispers through his silver hair, gently billowing his loose-fitting white shirt, while the salty air adds an intangible element to his masterpiece in progress. The scene is one of tranquility and inspiration, with the artist's canvas capturing the vibrant hues of the setting sun reflecting off the tranquil sea.</p>
             </td>
             <td style="width: 25%; vertical-align: top;">
@@ -232,13 +232,13 @@ with gr.Blocks() as demo:
             </td>
         </tr>
         <tr>
-            <td style="width: 25%; vertical-align: top; font-size: 0.8em;">
+            <td style="width: 25%; vertical-align: top; font-size: 0.9em;">
                 <p>In a dimly lit bar, purplish light bathes the face of a mature man, his eyes blinking thoughtfully as he ponders in close-up, the background artfully blurred to focus on his introspective expression, the ambiance of the bar a mere suggestion of shadows and soft lighting.</p>
             </td>
             <td style="width: 25%; vertical-align: top;">
                 <video src="https://github.com/user-attachments/assets/62b01046-8cab-44cc-bd45-4d965bb615ec" width="100%" controls autoplay loop></video>
             </td>
-            <td style="width: 25%; vertical-align: top; font-size: 0.8em;">
+            <td style="width: 25%; vertical-align: top; font-size: 0.9em;">
                 <p>A golden retriever, sporting sleek black sunglasses, with its lengthy fur flowing in the breeze, sprints playfully across a rooftop terrace, recently refreshed by a light rain. The scene unfolds from a distance, the dog's energetic bounds growing larger as it approaches the camera, its tail wagging with unrestrained joy, while droplets of water glisten on the concrete behind it. The overcast sky provides a dramatic backdrop, emphasizing the vibrant golden coat of the canine as it dashes towards the viewer.</p>
             </td>
             <td style="width: 25%; vertical-align: top;">
@@ -246,13 +246,13 @@ with gr.Blocks() as demo:
             </td>
         </tr>
         <tr>
-            <td style="width: 25%; vertical-align: top; font-size: 0.8em;">
+            <td style="width: 25%; vertical-align: top; font-size: 0.9em;">
                 <p>On a brilliant sunny day, the lakeshore is lined with an array of willow trees, their slender branches swaying gently in the soft breeze. The tranquil surface of the lake reflects the clear blue sky, while several elegant swans glide gracefully through the still water, leaving behind delicate ripples that disturb the mirror-like quality of the lake. The scene is one of serene beauty, with the willows' greenery providing a picturesque frame for the peaceful avian visitors.</p>
             </td>
             <td style="width: 25%; vertical-align: top;">
                 <video src="https://github.com/user-attachments/assets/30894f12-c741-44a2-9e6e-ddcacc231e5b" width="100%" controls autoplay loop></video>
             </td>
-            <td style="width: 25%; vertical-align: top; font-size: 0.8em;">
+            <td style="width: 25%; vertical-align: top; font-size: 0.9em;">
                 <p>A Chinese mother, draped in a soft, pastel-colored robe, gently rocks back and forth in a cozy rocking chair positioned in the tranquil setting of a nursery. The dimly lit bedroom is adorned with whimsical mobiles dangling from the ceiling, casting shadows that dance on the walls. Her baby, swaddled in a delicate, patterned blanket, rests against her chest, the child's earlier cries now replaced by contented coos as the mother's soothing voice lulls the little one to sleep. The scent of lavender fills the air, adding to the serene atmosphere, while a warm, orange glow from a nearby nightlight illuminates the scene with a gentle hue, capturing a moment of tender love and comfort.</p>
             </td>
             <td style="width: 25%; vertical-align: top;">
@@ -273,7 +273,7 @@ with gr.Blocks() as demo:
         latents, seed = infer(
             prompt,
             num_inference_steps=50,  # NOT Changed
-            guidance_scale=7,  # NOT Changed
+            guidance_scale=7.0,  # NOT Changed
             seed=seed_value,
             #progress=progress,
         )
