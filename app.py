@@ -173,7 +173,7 @@ with gr.Blocks() as demo:
                 enhance_button = gr.Button("✨ Enhance Prompt(Optional)")
 
             gr.Markdown(
-                "<span style='color:red; font-weight:bold;'>For the CogVideoX-5B model, 50 steps will take approximately 300 seconds.</span>"
+                "<span style='color:red; font-weight:bold;'>For the CogVideoX-5B model, 50 steps will take approximately 120 seconds.</span>"
             )
 
             with gr.Group():
