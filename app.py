@@ -21,7 +21,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 hf_hub_download(repo_id="ai-forever/Real-ESRGAN", filename="RealESRGAN_x4.pth", local_dir="model_real_esran")
 snapshot_download(repo_id="AlexWortega/RIFE", local_dir="model_rife")
 
-pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-5b", torch_dtype=torch.bfloat16)
+pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-5b", torch_dtype=torch.bfloat16).to(device)
 pipe.scheduler = CogVideoXDDIMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
 
 os.makedirs("./output", exist_ok=True)
