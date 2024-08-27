@@ -171,11 +171,6 @@ with gr.Blocks() as demo:
                     "✨Upon pressing the enhanced prompt button, we will use [GLM-4 Model](https://github.com/THUDM/GLM-4) to polish the prompt and overwrite the original one."
                 )
                 enhance_button = gr.Button("✨ Enhance Prompt(Optional)")
-
-            gr.Markdown(
-                "<span style='color:red; font-weight:bold;'>For the CogVideoX-5B model, 50 steps will take approximately 120 seconds.</span>"
-            )
-
             with gr.Group():
                 with gr.Column():
                     with gr.Row():
