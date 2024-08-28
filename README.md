@@ -5,8 +5,7 @@ colorFrom: yellow
 colorTo: blue
 sdk: gradio
 sdk_version: 4.42.0
-suggested_hardware: a10g-large
-suggested_storage: large
+suggested_hardware: l4x1
 app_port: 7860
 app_file: app.py
 models:

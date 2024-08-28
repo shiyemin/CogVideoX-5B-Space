@@ -157,10 +157,16 @@ with gr.Blocks() as demo:
                <a href="https://github.com/THUDM/CogVideo">🌐 Github</a> |
                <a href="https://arxiv.org/pdf/2408.06072">📜 arxiv </a>
            </div>
-
+           <div style="text-align: center;display: flex;justify-content: center;align-items: center;margin-top: 1em;margin-bottom: .5em;">
+              <span>If the Space is too busy, duplicate it to use privately</span>
+              <a href="https://huggingface.co/spaces/THUDM/CogVideoX-5B-Space?duplicate=true"><img src="https://huggingface.co/datasets/huggingface/badges/resolve/main/duplicate-this-space-lg.svg" width="160" style="
+                margin-left: .75em;
+            "></a>
+           </div>
            <div style="text-align: center; font-size: 15px; font-weight: bold; color: red; margin-bottom: 20px;">
             ⚠️ This demo is for academic research and experiential use only. 
             </div>
+        
            """)
     with gr.Row():
         with gr.Column():
@@ -309,4 +315,5 @@ with gr.Blocks() as demo:
     enhance_button.click(enhance_prompt_func, inputs=[prompt], outputs=[prompt])
 
 if __name__ == "__main__":
+    demo.queue(max_size=15)
     demo.launch()
