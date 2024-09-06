@@ -4,7 +4,7 @@ spandrel>=0.3.4
 tqdm>=4.66.5
 opencv-python>=4.10.0.84
 scikit-video>=1.1.11
-diffusers>=0.30.1
+git+https://github.com/huggingface/diffusers.git@3b5977dc29577cacbfec1d74221df4e28259a9bc
 transformers>=4.44.0
 accelerate>=0.33.0
 sentencepiece>=0.2.0

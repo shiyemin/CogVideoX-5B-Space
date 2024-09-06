@@ -4,9 +4,16 @@ import random
 import threading
 import time
 
+import cv2
+import numpy as np
+import tempfile
+import imageio
+import imageio_ffmpeg
+
 import gradio as gr
 import torch
-from diffusers import CogVideoXPipeline, CogVideoXDDIMScheduler,CogVideoXDPMScheduler
+from diffusers import CogVideoXPipeline, CogVideoXDDIMScheduler,CogVideoXDPMScheduler, CogVideoXVideoToVideoPipeline
+from diffusers.utils import export_to_video, load_video
 from datetime import datetime, timedelta
 
 from diffusers.image_processor import VaeImageProcessor
@@ -27,6 +34,8 @@ pipe.scheduler = CogVideoXDPMScheduler.from_config(pipe.scheduler.config, timest
 pipe.transformer.to(memory_format=torch.channels_last)
 pipe.transformer = torch.compile(pipe.transformer, mode="max-autotune", fullgraph=True)
 
+pipe_video = CogVideoXVideoToVideoPipeline.from_pretrained("THUDM/CogVideoX-5b", transformer=pipe.transformer, vae=pipe.vae, scheduler=pipe.scheduler, tokenizer=pipe.tokenizer, text_encoder=pipe.text_encoder, torch_dtype=torch.bfloat16)
+
 os.makedirs("./output", exist_ok=True)
 os.makedirs("./gradio_tmp", exist_ok=True)
 
@@ -46,6 +55,76 @@ Other times the user will not want modifications , but instead want a new image 
 Video descriptions must have the same num of words as examples below. Extra words will be ignored.
 """
 
+def resize_if_unfit(input_video, progress=gr.Progress(track_tqdm=True)):
+    width, height = get_video_dimensions(input_video)
+    
+    if width == 720 and height == 480:
+        processed_video = input_video
+    else:
+        processed_video = center_crop_resize(input_video)
+    return processed_video
+
+def get_video_dimensions(input_video_path):
+    reader = imageio_ffmpeg.read_frames(input_video_path)
+    metadata = next(reader)
+    return metadata['size']
+
+def center_crop_resize(input_video_path, target_width=720, target_height=480):
+    cap = cv2.VideoCapture(input_video_path)
+    
+    orig_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    orig_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    orig_fps = cap.get(cv2.CAP_PROP_FPS)
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    
+    width_factor = target_width / orig_width
+    height_factor = target_height / orig_height
+    resize_factor = max(width_factor, height_factor)
+    
+    inter_width = int(orig_width * resize_factor)
+    inter_height = int(orig_height * resize_factor)
+    
+    target_fps = 8
+    ideal_skip = max(0, math.ceil(orig_fps / target_fps) - 1)
+    skip = min(5, ideal_skip)  # Cap at 5
+    
+    while (total_frames / (skip + 1)) < 49 and skip > 0:
+        skip -= 1
+    
+    processed_frames = []
+    frame_count = 0
+    total_read = 0
+    
+    while frame_count < 49 and total_read < total_frames:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        
+        if total_read % (skip + 1) == 0:
+            resized = cv2.resize(frame, (inter_width, inter_height), interpolation=cv2.INTER_AREA)
+            
+            start_x = (inter_width - target_width) // 2
+            start_y = (inter_height - target_height) // 2
+            cropped = resized[start_y:start_y+target_height, start_x:start_x+target_width]
+            
+            processed_frames.append(cropped)
+            frame_count += 1
+        
+        total_read += 1
+    
+    cap.release()
+    
+    with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as temp_file:
+        temp_video_path = temp_file.name
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        out = cv2.VideoWriter(temp_video_path, fourcc, target_fps, (target_width, target_height))
+        
+        for frame in processed_frames:
+            out.write(frame)
+        
+        out.release()
+    
+    return temp_video_path
 
 def convert_prompt(prompt: str, retry_times: int = 3) -> str:
     if not os.environ.get("OPENAI_API_KEY"):
@@ -96,9 +175,10 @@ def convert_prompt(prompt: str, retry_times: int = 3) -> str:
             return response.choices[0].message.content
     return prompt
 
-
 def infer(
         prompt: str,
+        video_input: str,
+        video_strenght: float,
         num_inference_steps: int,
         guidance_scale: float,
         seed: int = -1,
@@ -106,16 +186,30 @@ def infer(
 ):
     if seed == -1:
         seed = random.randint(0, 2 ** 8 - 1)
-    video_pt = pipe(
-        prompt=prompt,
-        num_videos_per_prompt=1,
-        num_inference_steps=num_inference_steps,
-        num_frames=49,
-        use_dynamic_cfg=True,
-        output_type="pt",
-        guidance_scale=guidance_scale,
-        generator=torch.Generator(device="cpu").manual_seed(seed),
-    ).frames
+    if(video_input):
+        video = load_video(video_input)[:49]  # Limit to 49 frames        
+        video_pt = pipe_video(
+            video=video,
+            prompt=prompt,
+            num_inference_steps=num_inference_steps,
+            num_videos_per_prompt=1,
+            strength=video_strenght,
+            use_dynamic_cfg=True,
+            output_type="pt",
+            guidance_scale=guidance_scale,
+            generator=torch.Generator(device="cpu").manual_seed(seed),
+        ).frames
+    else:
+        video_pt = pipe(
+            prompt=prompt,
+            num_videos_per_prompt=1,
+            num_inference_steps=num_inference_steps,
+            num_frames=49,
+            use_dynamic_cfg=True,
+            output_type="pt",
+            guidance_scale=guidance_scale,
+            generator=torch.Generator(device="cpu").manual_seed(seed),
+        ).frames
 
     return (video_pt, seed)
 
@@ -146,6 +240,7 @@ def delete_old_files():
 
 
 threading.Thread(target=delete_old_files, daemon=True).start()
+examples = [["horse.mp4"], ["kitten.mp4"], ["train_running.mp4"]]
 
 with gr.Blocks() as demo:
     gr.Markdown("""
@@ -170,6 +265,10 @@ with gr.Blocks() as demo:
            """)
     with gr.Row():
         with gr.Column():
+            with gr.Accordion("Video-to-video", open=False):
+                video_input = gr.Video(label="Input Video (will be cropped to 49 frames, 6 seconds at 8fps)")
+                strength = gr.Slider(0.1, 1.0, value=0.8, step=0.01, label="Strength")
+                examples_component = gr.Examples(examples, inputs=[video_input], cache_examples=False)
             prompt = gr.Textbox(label="Prompt (Less than 200 Words)", placeholder="Enter your prompt here", lines=5)
 
             with gr.Row():
@@ -265,14 +364,18 @@ with gr.Blocks() as demo:
 
 
     def generate(prompt,
+                 video_input,
+                 video_strenght,
                  seed_value,
                  scale_status,
                  rife_status, 
-                 progress=gr.Progress(track_tqdm=True)
+                 #progress=gr.Progress(track_tqdm=True)
                 ):
 
         latents, seed = infer(
             prompt,
+            video_input,
+            video_strenght,
             num_inference_steps=50,  # NOT Changed
             guidance_scale=7.0,  # NOT Changed
             seed=seed_value,
@@ -308,12 +411,17 @@ with gr.Blocks() as demo:
 
     generate_button.click(
         generate,
-        inputs=[prompt, seed_param, enable_scale, enable_rife],
+        inputs=[prompt, video_input, strength, seed_param, enable_scale, enable_rife],
         outputs=[video_output, download_video_button, download_gif_button, seed_text],
     )
 
     enhance_button.click(enhance_prompt_func, inputs=[prompt], outputs=[prompt])
-
+    
+    video_input.upload(
+        resize_if_unfit,
+        inputs=[video_input],
+        outputs=[video_input]
+    )
 if __name__ == "__main__":
     demo.queue(max_size=15)
     demo.launch()
