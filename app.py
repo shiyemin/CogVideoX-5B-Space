@@ -321,11 +321,11 @@ with gr.Blocks() as demo:
         with gr.Column():
             with gr.Accordion("I2V: Image Input (cannot be used simultaneously with video input)", open=False):
                 image_input = gr.Image(label="Input Image (will be cropped to 720 * 480)")
-                examples_component_images = gr.Examples(examples_images, inputs=[examples_images], cache_examples=False)
+                examples_component_images = gr.Examples(examples_images, inputs=[image_input], cache_examples=False)
             with gr.Accordion("V2V: Video Input (cannot be used simultaneously with image input)", open=False):
                 video_input = gr.Video(label="Input Video (will be cropped to 49 frames, 6 seconds at 8fps)")
                 strength = gr.Slider(0.1, 1.0, value=0.8, step=0.01, label="Strength")
-                examples_component_videos = gr.Examples(examples_videos, inputs=[examples_videos], cache_examples=False)
+                examples_component_videos = gr.Examples(examples_videos, inputs=[video_input], cache_examples=False)
             prompt = gr.Textbox(label="Prompt (Less than 200 Words)", placeholder="Enter your prompt here", lines=5)
 
             with gr.Row():
