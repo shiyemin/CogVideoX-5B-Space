@@ -1,4 +1,4 @@
-"""
+`"""
 THis is the main file for the gradio web demo. It uses the CogVideoX-5B model to generate videos gradio web demo.
 set environment variable OPENAI_API_KEY to use the OpenAI API to enhance the prompt.
 
@@ -53,7 +53,7 @@ pipe_video = CogVideoXVideoToVideoPipeline.from_pretrained(
 ).to(device)
 
 pipe_image = CogVideoXImageToVideoPipeline.from_pretrained(
-    "THUDM/CogVideoX-5b",
+    "THUDM/CogVideoX-5b-I2V",
     transformer=CogVideoXTransformer3DModel.from_pretrained(
         "THUDM/CogVideoX-5b-I2V", subfolder="transformer", torch_dtype=torch.bfloat16
     ),
@@ -294,7 +294,7 @@ def delete_old_files():
 
 
 threading.Thread(target=delete_old_files, daemon=True).start()
-examples_videos = [["example_videos/ehorse.mp4"], ["example_videos/kitten.mp4"], ["example_videos/train_running.mp4"]]
+examples_videos = [["example_videos/horse.mp4"], ["example_videos/kitten.mp4"], ["example_videos/train_running.mp4"]]
 examples_images = [["example_images/beach.png"], ["example_images/street.png"], ["example_images/camping.png"]]
 
 with gr.Blocks() as demo:
@@ -303,7 +303,8 @@ with gr.Blocks() as demo:
                CogVideoX-5B Huggingface Space🤗
            </div>
            <div style="text-align: center;">
-               <a href="https://huggingface.co/THUDM/CogVideoX-5B">🤗 5B Model Hub</a> |
+               <a href="https://huggingface.co/THUDM/CogVideoX-5B">🤗 5B(T2V) Model Hub</a> |
+               <a href="https://huggingface.co/THUDM/CogVideoX-5B-I2V">🤗 5B(I2V) Model Hub</a> |
                <a href="https://github.com/THUDM/CogVideo">🌐 Github</a> |
                <a href="https://arxiv.org/pdf/2408.06072">📜 arxiv </a>
            </div>
