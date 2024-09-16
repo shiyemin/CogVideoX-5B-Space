@@ -1,4 +1,4 @@
-`"""
+"""
 THis is the main file for the gradio web demo. It uses the CogVideoX-5B model to generate videos gradio web demo.
 set environment variable OPENAI_API_KEY to use the OpenAI API to enhance the prompt.
 
@@ -304,7 +304,7 @@ with gr.Blocks() as demo:
            </div>
            <div style="text-align: center;">
                <a href="https://huggingface.co/THUDM/CogVideoX-5B">🤗 5B(T2V) Model Hub</a> |
-               <a href="https://huggingface.co/THUDM/CogVideoX-5B-I2V">🤗 5B(I2V) Model Hub</a> |
+               <a href="https://huggingface.co/THUDM/CogVideoX-5B-I2V">🤗 5B(I2V) Model Hub(Coming Soon)</a> |
                <a href="https://github.com/THUDM/CogVideo">🌐 Github</a> |
                <a href="https://arxiv.org/pdf/2408.06072">📜 arxiv </a>
            </div>
