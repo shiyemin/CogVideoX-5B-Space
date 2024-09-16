@@ -65,10 +65,10 @@ pipe_image = CogVideoXImageToVideoPipeline.from_pretrained(
 ).to(device)
 
 
-pipe.transformer.to(memory_format=torch.channels_last)
-pipe.transformer = torch.compile(pipe.transformer, mode="max-autotune", fullgraph=True)
-pipe_image.transformer.to(memory_format=torch.channels_last)
-pipe_image.transformer = torch.compile(pipe_image.transformer, mode="max-autotune", fullgraph=True)
+# pipe.transformer.to(memory_format=torch.channels_last)
+# pipe.transformer = torch.compile(pipe.transformer, mode="max-autotune", fullgraph=True)
+# pipe_image.transformer.to(memory_format=torch.channels_last)
+# pipe_image.transformer = torch.compile(pipe_image.transformer, mode="max-autotune", fullgraph=True)
 
 os.makedirs("./output", exist_ok=True)
 os.makedirs("./gradio_tmp", exist_ok=True)
@@ -294,7 +294,8 @@ def delete_old_files():
 
 
 threading.Thread(target=delete_old_files, daemon=True).start()
-examples = [["horse.mp4"], ["kitten.mp4"], ["train_running.mp4"]]
+examples_videos = [["example_videos/ehorse.mp4"], ["example_videos/kitten.mp4"], ["example_videos/train_running.mp4"]]
+examples_images = [["example_images/beach.png"], ["example_images/street.png"], ["example_images/camping.png"]]
 
 with gr.Blocks() as demo:
     gr.Markdown("""
@@ -320,10 +321,11 @@ with gr.Blocks() as demo:
         with gr.Column():
             with gr.Accordion("I2V: Image Input (cannot be used simultaneously with video input)", open=False):
                 image_input = gr.Image(label="Input Image (will be cropped to 720 * 480)")
+                examples_component_images = gr.Examples(examples_images, inputs=[examples_images], cache_examples=False)
             with gr.Accordion("V2V: Video Input (cannot be used simultaneously with image input)", open=False):
                 video_input = gr.Video(label="Input Video (will be cropped to 49 frames, 6 seconds at 8fps)")
                 strength = gr.Slider(0.1, 1.0, value=0.8, step=0.01, label="Strength")
-                examples_component = gr.Examples(examples, inputs=[video_input], cache_examples=False)
+                examples_component_videos = gr.Examples(examples_videos, inputs=[examples_videos], cache_examples=False)
             prompt = gr.Textbox(label="Prompt (Less than 200 Words)", placeholder="Enter your prompt here", lines=5)
 
             with gr.Row():
