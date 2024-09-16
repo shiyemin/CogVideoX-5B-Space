@@ -4,7 +4,7 @@ emoji: 🎥
 colorFrom: yellow
 colorTo: blue
 sdk: gradio
-sdk_version: 4.42.0
+sdk_version: 4.44.0
 suggested_hardware: a10g-large
 suggested_storage: large
 app_port: 7860
