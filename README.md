@@ -5,7 +5,8 @@ colorFrom: yellow
 colorTo: blue
 sdk: gradio
 sdk_version: 4.42.0
-suggested_hardware: l4x1
+suggested_hardware: a10g-large
+suggested_storage: large
 app_port: 7860
 app_file: app.py
 models:
@@ -42,3 +43,5 @@ pip install -r requirements.txt
 ```bash
 python gradio_web_demo.py
 ```
+
+
