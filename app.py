@@ -40,7 +40,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 hf_hub_download(repo_id="ai-forever/Real-ESRGAN", filename="RealESRGAN_x4.pth", local_dir="model_real_esran")
 snapshot_download(repo_id="AlexWortega/RIFE", local_dir="model_rife")
 
-pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-5b", torch_dtype=torch.bfloat16).to(device)
+pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-5b", torch_dtype=torch.bfloat16).to("cpu")
 pipe.scheduler = CogVideoXDPMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
 pipe_video = CogVideoXVideoToVideoPipeline.from_pretrained(
     "THUDM/CogVideoX-5b",
@@ -50,7 +50,7 @@ pipe_video = CogVideoXVideoToVideoPipeline.from_pretrained(
     tokenizer=pipe.tokenizer,
     text_encoder=pipe.text_encoder,
     torch_dtype=torch.bfloat16,
-).to(device)
+).to("cpu")
 
 pipe_image = CogVideoXImageToVideoPipeline.from_pretrained(
     "THUDM/CogVideoX-5b-I2V",
@@ -62,7 +62,7 @@ pipe_image = CogVideoXImageToVideoPipeline.from_pretrained(
     tokenizer=pipe.tokenizer,
     text_encoder=pipe.text_encoder,
     torch_dtype=torch.bfloat16,
-).to(device)
+).to("cpu")
 
 
 # pipe.transformer.to(memory_format=torch.channels_last)
@@ -229,6 +229,7 @@ def infer(
 
     if video_input is not None:
         video = load_video(video_input)[:49]  # Limit to 49 frames
+        pipe_video.to(device)
         video_pt = pipe_video(
             video=video,
             prompt=prompt,
@@ -240,7 +241,9 @@ def infer(
             guidance_scale=guidance_scale,
             generator=torch.Generator(device="cpu").manual_seed(seed),
         ).frames
+        pipe_video.to("cpu")
     elif image_input is not None:
+        pipe_image.to(device)
         image_input = Image.fromarray(image_input).resize(size=(720, 480))  # Convert to PIL
         image = load_image(image_input)
         video_pt = pipe_image(
@@ -253,7 +256,9 @@ def infer(
             guidance_scale=guidance_scale,
             generator=torch.Generator(device="cpu").manual_seed(seed),
         ).frames
+        pipe_image.to("cpu")
     else:
+        pipe.to(device)
         video_pt = pipe(
             prompt=prompt,
             num_videos_per_prompt=1,
@@ -264,7 +269,7 @@ def infer(
             guidance_scale=guidance_scale,
             generator=torch.Generator(device="cpu").manual_seed(seed),
         ).frames
-
+        pipe.to("cpu")
     return (video_pt, seed)
 
 
