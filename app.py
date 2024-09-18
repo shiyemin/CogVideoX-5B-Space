@@ -304,7 +304,7 @@ with gr.Blocks() as demo:
            </div>
            <div style="text-align: center;">
                <a href="https://huggingface.co/THUDM/CogVideoX-5B">🤗 5B(T2V) Model Hub</a> |
-               <a href="https://huggingface.co/THUDM/CogVideoX-5B-I2V">🤗 5B(I2V) Model Hub(Coming Soon)</a> |
+               <a href="https://huggingface.co/THUDM/CogVideoX-5B-I2V">🤗 5B(I2V) Model Hub</a> |
                <a href="https://github.com/THUDM/CogVideo">🌐 Github</a> |
                <a href="https://arxiv.org/pdf/2408.06072">📜 arxiv </a>
            </div>
