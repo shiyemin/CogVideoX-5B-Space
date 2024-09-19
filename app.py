@@ -34,6 +34,7 @@ import moviepy.editor as mp
 import utils
 from rife_model import load_rife_model, rife_inference_with_latents
 from huggingface_hub import hf_hub_download, snapshot_download
+import gc
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -240,6 +241,9 @@ def infer(
             guidance_scale=guidance_scale,
             generator=torch.Generator(device="cpu").manual_seed(seed),
         ).frames
+        del pipe_video
+        gc.collect()
+        torch.cuda.empty_cache()
     elif image_input is not None:
         pipe_image.to(device)
         image_input = Image.fromarray(image_input).resize(size=(720, 480))  # Convert to PIL
@@ -255,6 +259,7 @@ def infer(
             generator=torch.Generator(device="cpu").manual_seed(seed),
         ).frames
         pipe_image.to("cpu")
+        gc.collect()
     else:
         pipe.to(device)
         video_pt = pipe(
@@ -268,6 +273,7 @@ def infer(
             generator=torch.Generator(device="cpu").manual_seed(seed),
         ).frames
         pipe.to("cpu")
+        gc.collect()
     return (video_pt, seed)
 
 
