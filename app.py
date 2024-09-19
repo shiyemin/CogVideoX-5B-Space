@@ -44,18 +44,9 @@ snapshot_download(repo_id="AlexWortega/RIFE", local_dir="model_rife")
 pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-5b", torch_dtype=torch.bfloat16).to("cpu")
 pipe.scheduler = CogVideoXDPMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
 
-pipe_image = CogVideoXImageToVideoPipeline.from_pretrained(
-    "THUDM/CogVideoX-5b-I2V",
-    transformer=CogVideoXTransformer3DModel.from_pretrained(
-        "THUDM/CogVideoX-5b-I2V", subfolder="transformer", torch_dtype=torch.bfloat16
-    ),
-    vae=pipe.vae,
-    scheduler=pipe.scheduler,
-    tokenizer=pipe.tokenizer,
-    text_encoder=pipe.text_encoder,
-    torch_dtype=torch.bfloat16,
-).to("cpu")
-
+i2v_transformer = CogVideoXTransformer3DModel.from_pretrained(
+    "THUDM/CogVideoX-5b-I2V", subfolder="transformer", torch_dtype=torch.bfloat16
+)
 
 # pipe.transformer.to(memory_format=torch.channels_last)
 # pipe.transformer = torch.compile(pipe.transformer, mode="max-autotune", fullgraph=True)
@@ -241,11 +232,20 @@ def infer(
             guidance_scale=guidance_scale,
             generator=torch.Generator(device="cpu").manual_seed(seed),
         ).frames
+        pipe_video.to("cpu")
         del pipe_video
         gc.collect()
         torch.cuda.empty_cache()
     elif image_input is not None:
-        pipe_image.to(device)
+        pipe_image = CogVideoXImageToVideoPipeline.from_pretrained(
+            "THUDM/CogVideoX-5b-I2V",
+            transformer=i2v_transformer,
+            vae=pipe.vae,
+            scheduler=pipe.scheduler,
+            tokenizer=pipe.tokenizer,
+            text_encoder=pipe.text_encoder,
+            torch_dtype=torch.bfloat16,
+        ).to(device)
         image_input = Image.fromarray(image_input).resize(size=(720, 480))  # Convert to PIL
         image = load_image(image_input)
         video_pt = pipe_image(
@@ -259,7 +259,9 @@ def infer(
             generator=torch.Generator(device="cpu").manual_seed(seed),
         ).frames
         pipe_image.to("cpu")
+        del pipe_image
         gc.collect()
+        torch.cuda.empty_cache()
     else:
         pipe.to(device)
         video_pt = pipe(
