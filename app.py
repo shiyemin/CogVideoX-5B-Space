@@ -42,15 +42,6 @@ snapshot_download(repo_id="AlexWortega/RIFE", local_dir="model_rife")
 
 pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-5b", torch_dtype=torch.bfloat16).to("cpu")
 pipe.scheduler = CogVideoXDPMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
-pipe_video = CogVideoXVideoToVideoPipeline.from_pretrained(
-    "THUDM/CogVideoX-5b",
-    transformer=pipe.transformer,
-    vae=pipe.vae,
-    scheduler=pipe.scheduler,
-    tokenizer=pipe.tokenizer,
-    text_encoder=pipe.text_encoder,
-    torch_dtype=torch.bfloat16,
-).to("cpu")
 
 pipe_image = CogVideoXImageToVideoPipeline.from_pretrained(
     "THUDM/CogVideoX-5b-I2V",
@@ -229,7 +220,15 @@ def infer(
 
     if video_input is not None:
         video = load_video(video_input)[:49]  # Limit to 49 frames
-        pipe_video.to(device)
+        pipe_video = CogVideoXVideoToVideoPipeline.from_pretrained(
+            "THUDM/CogVideoX-5b",
+            transformer=pipe.transformer,
+            vae=pipe.vae,
+            scheduler=pipe.scheduler,
+            tokenizer=pipe.tokenizer,
+            text_encoder=pipe.text_encoder,
+            torch_dtype=torch.bfloat16,
+        ).to(device)
         video_pt = pipe_video(
             video=video,
             prompt=prompt,
@@ -241,7 +240,6 @@ def infer(
             guidance_scale=guidance_scale,
             generator=torch.Generator(device="cpu").manual_seed(seed),
         ).frames
-        pipe_video.to("cpu")
     elif image_input is not None:
         pipe_image.to(device)
         image_input = Image.fromarray(image_input).resize(size=(720, 480))  # Convert to PIL
