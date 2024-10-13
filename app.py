@@ -21,6 +21,7 @@ from PIL import Image
 from diffusers import (
     CogVideoXPipeline,
     CogVideoXDPMScheduler,
+    CogVideoXDDIMScheduler,
     CogVideoXVideoToVideoPipeline,
     CogVideoXImageToVideoPipeline,
     CogVideoXTransformer3DModel,
@@ -43,6 +44,7 @@ snapshot_download(repo_id="AlexWortega/RIFE", local_dir="model_rife")
 
 pipe = CogVideoXPipeline.from_pretrained("THUDM/CogVideoX-5b", torch_dtype=torch.bfloat16).to("cpu")
 pipe.scheduler = CogVideoXDPMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
+# pipe.scheduler = CogVideoXDDIMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
 
 i2v_transformer = CogVideoXTransformer3DModel.from_pretrained(
     "THUDM/CogVideoX-5b-I2V", subfolder="transformer", torch_dtype=torch.bfloat16
@@ -348,6 +350,10 @@ with gr.Blocks() as demo:
             with gr.Group():
                 with gr.Column():
                     with gr.Row():
+                        num_steps = gr.Slider(1, 100, value=50, step=1, label="Num steps")
+                    with gr.Row():
+                        guidance_scale = gr.Slider(1.0, 10.0, value=7.0, step=0.1, label="Guidance scale")
+                    with gr.Row():
                         seed_param = gr.Number(
                             label="Inference Seed (Enter a positive number, -1 for random)", value=-1
                         )
@@ -435,6 +441,8 @@ with gr.Blocks() as demo:
         prompt,
         image_input,
         video_input,
+        num_steps,
+        guidance_scale,
         video_strength,
         seed_value,
         scale_status,
@@ -446,8 +454,8 @@ with gr.Blocks() as demo:
             image_input,
             video_input,
             video_strength,
-            num_inference_steps=50,  # NOT Changed
-            guidance_scale=7.0,  # NOT Changed
+            num_inference_steps=num_steps,  # NOT Changed
+            guidance_scale=guidance_scale,  # NOT Changed
             seed=seed_value,
             progress=progress,
         )
@@ -466,7 +474,8 @@ with gr.Blocks() as demo:
             image_pil = VaeImageProcessor.numpy_to_pil(image_np)
             batch_video_frames.append(image_pil)
 
-        video_path = utils.save_video(batch_video_frames[0], fps=math.ceil((len(batch_video_frames[0]) - 1) / 6))
+        # video_path = utils.save_video(batch_video_frames[0], fps=math.ceil((len(batch_video_frames[0]) - 1) / 6))
+        video_path = utils.save_video(batch_video_frames[0], fps=8)
         video_update = gr.update(visible=True, value=video_path)
         gif_path = convert_to_gif(video_path)
         gif_update = gr.update(visible=True, value=gif_path)
@@ -479,7 +488,7 @@ with gr.Blocks() as demo:
 
     generate_button.click(
         generate,
-        inputs=[prompt, image_input, video_input, strength, seed_param, enable_scale, enable_rife],
+        inputs=[prompt, image_input, video_input, num_steps, guidance_scale, strength, seed_param, enable_scale, enable_rife],
         outputs=[video_output, download_video_button, download_gif_button, seed_text],
     )
 
@@ -488,4 +497,4 @@ with gr.Blocks() as demo:
 
 if __name__ == "__main__":
     demo.queue(max_size=15)
-    demo.launch()
+    demo.launch(share=True, server_name="0.0.0.0", server_port=28888)
